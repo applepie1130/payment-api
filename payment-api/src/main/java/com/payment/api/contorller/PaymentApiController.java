@@ -18,6 +18,7 @@ import com.payment.api.model.entity.PaymentResponseEntity;
 import com.payment.api.model.tuple.ApproveTuple;
 import com.payment.api.model.tuple.CancelTuple;
 import com.payment.api.model.tuple.SearchTuple;
+import com.payment.api.model.type.MessageType;
 import com.payment.api.service.MessageService;
 import com.payment.api.service.PaymentService;
 
@@ -60,7 +61,7 @@ public class PaymentApiController {
 		return new ResponseEntity<>(PaymentResponseEntity.builder()
 									.result(result)
 									.status(HttpStatus.OK)
-									.message(messageService.getMessage("", null))
+									.message(messageService.getMessage(MessageType.PAYMENT_SUCCESS_SEARCH.getCode(), null))
 									.build()
 									, HttpStatus.OK);
 	}
@@ -87,7 +88,7 @@ public class PaymentApiController {
 		return new ResponseEntity<>(PaymentResponseEntity.builder()
 				.status(HttpStatus.OK)
 				.result(result)
-				.message(messageService.getMessage("", null))
+				.message(messageService.getMessage(MessageType.PAYMENT_SUCCESS_APPROVE.getCode(), null))
 				.build()
 				, HttpStatus.OK);
 	}
@@ -111,7 +112,7 @@ public class PaymentApiController {
 		return new ResponseEntity<>(PaymentResponseEntity.builder()
 				.status(HttpStatus.OK)
 				.result(result)
-				.message(messageService.getMessage("", null))
+				.message(messageService.getMessage(MessageType.PAYMENT_SUCCESS_CANCEL.getCode(), null))
 				.build()
 				, HttpStatus.OK);
 	}

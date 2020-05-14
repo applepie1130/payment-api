@@ -11,6 +11,7 @@ public enum MessageType {
 	PAYMENT_SUCCESS_CANCEL("payment.success.cancel"),
 	
 	PAYMENT_ERROR_DEFAULT("payment.error.default"),
+	PAYMENT_ERROR_NODATA("payment.error.nodata"),
 	PAYMENT_ERROR_SEARCH("payment.error.search"),
 	PAYMENT_ERROR_APPROVE("payment.error.approve"),
 	PAYMENT_ERROR_CANCEL("payment.error.cancel"),
