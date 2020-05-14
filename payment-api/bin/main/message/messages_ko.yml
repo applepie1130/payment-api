@@ -1,0 +1,13 @@
+payment:
+  success:
+    search: "조회되었습니다."
+    approve: "결제요청이 완료됐습니다.."
+    cancel: "취소요청이 완료됐습니다."
+
+  error:
+    default: "오류가 발생했습니다."
+    search: "조회 중 오류가 발생했습니다."
+    approve: "결제처리 중 오류가 발생했습니다."
+    cancel: "취소처리 중 오류가 발생했습니다."
+    required:
+      mid: "mid값은 필수입니다."
