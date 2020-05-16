@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.payment.api.model.type.StatusType;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -42,6 +43,9 @@ public class SearchTuple implements Serializable {
 	
 	@ApiModelProperty(notes = "남은 취소 가능금액", name = "cancelAvailableAmount", required = true)
 	private BigDecimal cancelAvailableAmount;
+	
+	@ApiModelProperty(notes = "결제상태", name = "statusType", required = true)
+	private StatusType statusType;
 	
 	@ApiModelProperty(notes = "결제승인시간", name = "approvedAt", required = true)
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")

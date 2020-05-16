@@ -11,10 +11,13 @@ public enum MessageType {
 	PAYMENT_SUCCESS_CANCEL("payment.success.cancel"),
 	
 	PAYMENT_ERROR_DEFAULT("payment.error.default"),
+	PAYMENT_ERROR_ALEADY_PROCESS("payment.error.aleadyProcess"),
 	PAYMENT_ERROR_NODATA("payment.error.nodata"),
 	PAYMENT_ERROR_SEARCH("payment.error.search"),
 	PAYMENT_ERROR_APPROVE("payment.error.approve"),
 	PAYMENT_ERROR_CANCEL("payment.error.cancel"),
+	PAYMENT_ERROR_CANCEL_AMOUNT("payment.error.cancelAmount"),
+	PAYMENT_ERROR_CANCEL_VAT("payment.error.cancelVat"),
 	PAYMENT_ERROR_CARDINFO("payment.error.cardinfo"),
 	
 	;

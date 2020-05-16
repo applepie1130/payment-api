@@ -19,7 +19,7 @@ public class PaymentRedisRepository {
 
 	public Boolean set(String key, String value, Integer seconds) {
 		ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
-		return opsForValue.setIfAbsent(key, value, Duration.ofSeconds(seconds));
+		return opsForValue.setIfAbsent(key, value, Duration.ofMillis(seconds));
 	}
 	
 	public Boolean delete(String key) {

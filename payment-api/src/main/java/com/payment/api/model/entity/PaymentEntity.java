@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.payment.api.model.type.StatusType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,6 +32,8 @@ public class PaymentEntity {
 	
 	private BigDecimal vat;
 	
+	private String installMonth;
+	
 	private BigDecimal cancelAvailableAmount;
 	
 	private BigDecimal cancelAvailableVat;
@@ -37,6 +41,8 @@ public class PaymentEntity {
 	private String encryptedCardInfo;
 	
 	private String fullText;
+	
+	private StatusType statusType;
 	
 	private List<CancellationEntity> canceledList;
 	

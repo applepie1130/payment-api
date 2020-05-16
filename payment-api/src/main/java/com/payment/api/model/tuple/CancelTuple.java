@@ -23,8 +23,8 @@ public class CancelTuple implements Serializable {
 
 	private static final long serialVersionUID = 7821106780900273234L;
 
-	@ApiModelProperty(notes = "mid", name = "mid", required = true)
-	private String mid;
+	@ApiModelProperty(notes = "취소관리번호", name = "cid", required = true)
+	private String cid;
 	
 	@ApiModelProperty(notes = "결제금액", name = "amount", required = true)
 	private BigDecimal amount;
@@ -38,10 +38,13 @@ public class CancelTuple implements Serializable {
 	@ApiModelProperty(notes = "취소부가세", name = "cancelVat", required = true)
 	private BigDecimal cancelVat;
 	
-	@ApiModelProperty(notes = "남은 취소 가능금액", name = "cancelAvailableAmount", required = true)
+	@ApiModelProperty(notes = "남은 취소 가능 금액", name = "cancelAvailableAmount", required = true)
 	private BigDecimal cancelAvailableAmount;
+	
+	@ApiModelProperty(notes = "남은 취소 가능 부가세", name = "cancelAvailableVat", required = true)
+	private BigDecimal cancelAvailableVat;
 
-	@ApiModelProperty(notes = "결제상태", name = "결제상태", required = true)
+	@ApiModelProperty(notes = "결제상태", name = "statusType", required = true)
 	private StatusType statusType;
 	
 	@ApiModelProperty(notes = "결제승인시각", name = "approvedAt", required = true)

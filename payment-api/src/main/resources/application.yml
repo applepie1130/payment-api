@@ -11,10 +11,12 @@ spring:
         min-idle: 2
     port: 16377
     host: 127.0.0.1
-
+  
 logging:
   level:
-    todo : 'DEBUG'
-  path: '/app/payment-api/logs/'
+    com:
+      payment: DEBUG
+  #path: '/app/payment-api/logs/'
+  path: '/Users/sungjun.kim/git/payment-api/logs/'
   
 payment-secretkey: 'kakaopaygogogo!!'

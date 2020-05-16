@@ -2,6 +2,7 @@ package com.payment.api.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -27,12 +28,13 @@ import com.payment.api.model.tuple.CardTuple;
 import com.payment.api.model.tuple.SearchTuple;
 import com.payment.api.model.type.DelimiterType;
 import com.payment.api.model.type.MessageType;
+import com.payment.api.model.type.StatusType;
 import com.payment.api.model.type.TimeoutType;
 import com.payment.api.repository.GenerateSequenceRepository;
 import com.payment.api.repository.mongo.PaymentMongoRepository;
 import com.payment.api.repository.redis.PaymentRedisRepository;
 import com.payment.api.util.CardApproveFullText;
-import com.payment.api.util.CardFullText;
+import com.payment.api.util.CardCancelFullText;
 
 import lombok.extern.log4j.Log4j2;
 
@@ -64,16 +66,13 @@ public class PaymentService {
 	
 	
 	public SearchTuple search(final SearchCriteria searchCriteria) {
-		Optional<PaymentEntity> documents = paymentMongoRepository.findById(searchCriteria.getMid());
-		documents.filter(Objects::nonNull).orElseThrow(() -> new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_NODATA.getCode())));
-		
-		PaymentEntity paymentEntity = documents.get();
+		PaymentEntity paymentEntity = this.selectPaymentEntity(searchCriteria.getMid());
 		List<CancellationEntity> canceledList = paymentEntity.getCanceledList();
-		
 		BigDecimal totalCanceledAmount = BigDecimal.ZERO;
 		BigDecimal totalCanceledVat = BigDecimal.ZERO;
 		
-		if ( CollectionUtils.isNotEmpty(canceledList) ) {
+		// 전체 취소, 취소부과세 금액 계산
+		if (CollectionUtils.isNotEmpty(canceledList)) {
 			totalCanceledAmount = canceledList.stream()
 											.map(s->s.getCancelAmount())
 											.reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -92,6 +91,7 @@ public class PaymentService {
 						.cardInfo(this.getCardTuple(paymentEntity.getEncryptedCardInfo())) // 복호화
 						.totalCanceledAmount(totalCanceledAmount)
 						.totalCanceledVat(totalCanceledVat)
+						.statusType(paymentEntity.getStatusType())
 						.build();
 	}
 	
@@ -101,14 +101,15 @@ public class PaymentService {
 		String cvc = approveCriteria.getCvc();
 		BigDecimal amount = approveCriteria.getAmount();
 		BigDecimal vat = approveCriteria.getVat();
+		String installMonth = approveCriteria.getInstallMonth();
 		
 		// redis key set
 		Optional.of(paymentRedisRepository.set(cardNumber, "1", TimeoutType.REDIS_APPROVE.getMilliseconds()))
 			.filter(s -> s == Boolean.TRUE)
-			.orElseThrow(() -> new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_NODATA.getCode())));
+			.orElseThrow(() -> new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_ALEADY_PROCESS.getCode())));
 		
 		// 부가가치세 계산
-		if (vat != null && vat.compareTo(BigDecimal.ZERO) > 0) {
+		if (vat == null) {
 			vat = amount.divide(BigDecimal.valueOf(11), 0, BigDecimal.ROUND_HALF_EVEN);
 		}
 		
@@ -119,31 +120,32 @@ public class PaymentService {
 		String encryptedCardInfo = this.getEncryptCardInfo(cardNumber, mmyy, cvc);
 		
 		// 카드사 전문생성
-		CardFullText cardFullText = new CardApproveFullText(CardFullTextCriteria.builder()
-																			.mid(mid)
-																			.cardNumber(cardNumber)
-																			.installMonth(approveCriteria.getInstallMonth())
-																			.mmyy(mmyy)
-																			.cvc(cvc)
-																			.amount(approveCriteria.getAmount())
-																			.vat(approveCriteria.getVat())
-																			.encryptedCardInfo(encryptedCardInfo)
-																			.build());
-		String fullText = cardFullText.createFullText();
-		
+		String fullText = new CardApproveFullText(CardFullTextCriteria.builder()
+														.mid(mid)
+														.cardNumber(cardNumber)
+														.installMonth(installMonth)
+														.mmyy(mmyy)
+														.cvc(cvc)
+														.amount(amount)
+														.vat(vat)
+														.encryptedCardInfo(encryptedCardInfo)
+														.build())
+							.createFullText();
 		// DB insert
-		PaymentEntity entity = paymentMongoRepository.save(PaymentEntity.builder()
+		PaymentEntity entity = paymentMongoRepository.insert(PaymentEntity.builder()
 																.mid(mid)		
-																.amount(approveCriteria.getAmount())
-																.vat(approveCriteria.getVat())
+																.amount(amount)
+																.vat(vat)
+																.installMonth(installMonth)
 																.fullText(fullText)
-																.cancelAvailableAmount(approveCriteria.getAmount())
-																.cancelAvailableVat(approveCriteria.getVat())
+																.statusType(StatusType.SUCCESS_PAYMENT)
+																.cancelAvailableAmount(amount)
+																.cancelAvailableVat(vat)
 																.encryptedCardInfo(encryptedCardInfo)
 																.approvedAt(LocalDateTime.now())
 																.build());
 		
-		if ( log.isDebugEnabled() ) {
+		if (log.isDebugEnabled()) {
 			log.debug("##################### 결제요청 결과 START #####################");
 			log.debug("관리번호 : " + mid);
 			log.debug("암호화 구문 : " + encryptedCardInfo);
@@ -171,21 +173,119 @@ public class PaymentService {
 		// redis key set
 		Optional.of(paymentRedisRepository.set(mid, "1", TimeoutType.REDIS_CANCEL.getMilliseconds()))
 			.filter(s -> s == Boolean.TRUE)
-			.orElseThrow(() -> new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_NODATA.getCode())));
+			.orElseThrow(() -> new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_ALEADY_PROCESS.getCode())));
 		
-		// TODO
-		// search
-		// 부가가치세 관련 validation
-		// mid 생성
-		// 암호화
-		// 카드사 전문생성
-		// update
-		// 결과생성
+		// 원 결제정보 조회
+		PaymentEntity paymentEntity = this.selectPaymentEntity(mid);
+		CardTuple cardTuple = this.getCardTuple(paymentEntity.getEncryptedCardInfo());
+		
+		/**
+		 * 취소가능여부 유효성 검사
+		 * 취소가능금액 >= 취소금액
+		 * 취소가능부가세 >= 취소부가세
+		 */
+		BigDecimal cancelAvailableAmount = paymentEntity.getCancelAvailableAmount();
+		BigDecimal cancelAvailableVat = paymentEntity.getCancelAvailableVat();
+		
+		// 부가가치세 계산
+		if (cancelVat == null) {
+			if (cancelAmount.compareTo(cancelAvailableAmount) == 0) {
+				cancelVat = cancelAvailableVat;
+			} else {
+				cancelVat = cancelAmount.divide(BigDecimal.valueOf(11), 0, BigDecimal.ROUND_HALF_EVEN);
+			}
+		}
+		
+		// 취소가능 유효성 검사
+		if (cancelAvailableAmount.compareTo(cancelAmount) < 0) {
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CANCEL_AMOUNT.getCode()));
+		} 
+		if (cancelAvailableVat.compareTo(cancelVat) < 0) {
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CANCEL_VAT.getCode()));
+		}
+		
+		BigDecimal cancelAvailableAmountForUpdate = cancelAvailableAmount.subtract(cancelAmount);
+		BigDecimal cancelAvailableVatForUpdate = cancelAvailableVat.subtract(cancelVat);
+		
+		StatusType statusType = null;
+		if ( cancelAvailableAmountForUpdate.compareTo(BigDecimal.ZERO) == 0 ) {
+			statusType = StatusType.CANCEL_PAYMENT;
+		} else {
+			statusType = StatusType.PART_CANCEL_PAYMENT;
+		}
+		
+		// 취소관리번호 생성
+		String cid = generateSequenceRepository.generateSequence(CancellationEntity.SEQUENCE_NAME);
+		
+		// 카드사 취소전문 생성
+		String cancelFullText = new CardCancelFullText(CardFullTextCriteria.builder()
+										.mid(cid)
+										.cardNumber(cardTuple.getCardNumber())
+										.installMonth(paymentEntity.getInstallMonth())
+										.mmyy(cardTuple.getMmyy())
+										.cvc(cardTuple.getCvc())
+										.amount(cancelAvailableAmountForUpdate) // 취소금액
+										.vat(cancelAvailableVatForUpdate) // 취소부가세
+										.originalMid(mid)
+										.encryptedCardInfo(paymentEntity.getEncryptedCardInfo())
+										.build())
+								.createFullText();
+		// 취소데이터 생성
+		CancellationEntity cancellationEntity = CancellationEntity.builder()
+																.cid(cid)
+																.cancelAmount(cancelAvailableAmountForUpdate)
+																.cancelVat(cancelAvailableVatForUpdate)
+																.canceledAt(LocalDateTime.now())
+																.cancelFullText(cancelFullText)
+																.build();
+		List<CancellationEntity> canceledList = paymentEntity.getCanceledList();
+		if (CollectionUtils.isEmpty(canceledList)) {
+			canceledList = new ArrayList<>();
+		}
+		canceledList.add(cancellationEntity);
+		
+		paymentEntity.setCanceledList(canceledList);
+		paymentEntity.setLastCanceledAt(cancellationEntity.getCanceledAt());
+		paymentEntity.setCancelAvailableAmount(cancelAvailableAmountForUpdate);
+		paymentEntity.setCancelAvailableVat(cancelAvailableVatForUpdate);
+
+		// DB update
+		PaymentEntity entity = paymentMongoRepository.save(paymentEntity);
+		
+		if (log.isDebugEnabled()) {
+			log.debug("##################### 취소요청 결과 START #####################");
+			log.debug("관리번호 : " + mid);
+			log.debug("결제상태 : " + statusType);
+			log.debug("취소 관리번호 : " + cid);
+			log.debug("카드사 취소 전문통신 : " + cancelFullText);
+			log.debug("PaymentEntity : " + entity);
+			log.debug("##################### 취소요청 결과 END #####################");
+		}
 		
 		// redis key delete
 		paymentRedisRepository.delete(mid);
-				
-		return null;
+		
+		return CancelTuple.builder()
+					.cid(cid)
+					.amount(paymentEntity.getAmount())
+					.vat(paymentEntity.getVat())
+					.cancelAmount(cancelAmount)
+					.cancelVat(cancelVat)
+					.cancelAvailableAmount(paymentEntity.getCancelAvailableAmount())
+					.cancelAvailableVat(paymentEntity.getCancelAvailableVat())
+					.statusType(statusType)
+					.approvedAt(paymentEntity.getApprovedAt())
+					.canceledAt(cancellationEntity.getCanceledAt())
+					.build();
+	}
+
+	private PaymentEntity selectPaymentEntity(String mid) {
+		Optional<PaymentEntity> documents = paymentMongoRepository.findById(mid);
+		documents.filter(Objects::nonNull).orElseThrow(() -> new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_NODATA.getCode())));
+		
+		PaymentEntity paymentEntity = documents.get();
+		
+		return paymentEntity;
 	}
 	
 	private String getEncryptCardInfo(final String cardNumber, final String mmyy, final String cvc) {
@@ -214,7 +314,7 @@ public class PaymentService {
 		// 복호화
 		String[] splitedCardInfo = StringUtils.split(encryptorComponent.decrypt(encryptedCardInfo, secretKey), DelimiterType.CARD.getDelimiter());
 		
-		if ( CollectionUtils.sizeIsEmpty(splitedCardInfo) ) {
+		if (CollectionUtils.sizeIsEmpty(splitedCardInfo)) {
 			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CARDINFO.getCode()));
 		}
 		
@@ -224,28 +324,5 @@ public class PaymentService {
 						.cvc(splitedCardInfo[2])
 						.build();
 	}
-	
-//	public static void main(String[] args) {
-//		CardFullText cardFullText = new CardApproveFullText(CardFullTextCriteria.builder()
-//				.mid("XXXXXXXXXXXXXXXXXXXX")
-//				.cardNumber("1234567890123456")
-//				.installMonth("0")
-//				.mmyy("1125")
-//				.cvc("777")
-//				.amount(new BigDecimal("110000"))
-//				.vat(new BigDecimal("10000"))
-//				.encryptedCardInfo("YYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY")
-//				.build());
-//		String fullText = cardFullText.createFullText();
-//		
-//		System.out.println("result : " + fullText);
-//	}
-	
-//	public static void main(String[] args) {
-//		BigDecimal amount = BigDecimal.valueOf(3300);
-//		BigDecimal vat = amount.divide(BigDecimal.valueOf(11), 0, BigDecimal.ROUND_HALF_EVEN);
-//		
-//		System.out.println(vat);
-//	}
 	
 }

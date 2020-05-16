@@ -22,7 +22,7 @@ public class ApproveTuple implements Serializable {
 
 	private static final long serialVersionUID = -6227901814655234223L;
 
-	@ApiModelProperty(notes = "mid", name = "mid", required = true)
+	@ApiModelProperty(notes = "관리번호", name = "mid", required = true)
 	private String mid;
 	
 	@ApiModelProperty(notes = "결제금액", name = "amount", required = true)

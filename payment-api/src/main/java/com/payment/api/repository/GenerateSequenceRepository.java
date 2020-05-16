@@ -42,10 +42,10 @@ public class GenerateSequenceRepository {
 					DatabaseSequenceEntity.class);
 		}
 		
-		StringBuffer buffer = new StringBuffer();
 		String prefix = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-		return buffer.append(prefix)
-					.append(String.format("%012d", !Objects.isNull(sequence) ? sequence.getSeq() : 1) )
-					.toString();
+		
+		return new StringBuffer().append(prefix)
+								.append(String.format("%012d", !Objects.isNull(sequence) ? sequence.getSeq() : 1) )
+								.toString();
 	}
 }
