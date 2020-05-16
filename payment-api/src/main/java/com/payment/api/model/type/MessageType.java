@@ -15,7 +15,7 @@ public enum MessageType {
 	PAYMENT_ERROR_SEARCH("payment.error.search"),
 	PAYMENT_ERROR_APPROVE("payment.error.approve"),
 	PAYMENT_ERROR_CANCEL("payment.error.cancel"),
-	PAYMENT_ERROR_REQUIRED_MID("payment.error.required.mid"),
+	PAYMENT_ERROR_CARDINFO("payment.error.cardinfo"),
 	
 	;
 	

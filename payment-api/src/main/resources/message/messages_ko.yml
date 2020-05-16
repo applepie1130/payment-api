@@ -8,6 +8,7 @@ payment:
     default: "오류가 발생했습니다."
     search: "조회 중 오류가 발생했습니다."
     nodata: "조회된 데이터가 없습니다."
+    cardinfo: "카드정보를 확인할 수 없습니다." 
     approve: "결제처리 중 오류가 발생했습니다."
     cancel: "취소처리 중 오류가 발생했습니다."
     required:

@@ -28,7 +28,7 @@ public class SwaggerConfig {
 	@Bean
 	public Docket api() {
 		Docket docket = new Docket(DocumentationType.SWAGGER_2);
-		Predicate<RequestHandler> basePackage = RequestHandlerSelectors.basePackage("todo.api.controller");
+		Predicate<RequestHandler> basePackage = RequestHandlerSelectors.basePackage("com.payment.api.controller");
 		
 		ArrayList<ResponseMessage> responseMessageStatus = newArrayList( 
 				new ResponseMessageBuilder().code(400).message("Invalid request").build(),
@@ -54,7 +54,7 @@ public class SwaggerConfig {
 	 */
 	private ApiInfo apiInfo() {
 		
-		String title = "TODO-API Documents";
+		String title = "Payment-API Documents";
 		String version = "0.0.1";
 		String license = "Sungjun All rights reserved";
 		

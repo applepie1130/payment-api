@@ -1,6 +1,6 @@
 package com.payment.api.contorller;
 
-import java.util.Optional;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -9,11 +9,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.payment.api.model.criteria.ApproveCriteria;
 import com.payment.api.model.criteria.CancelCriteria;
+import com.payment.api.model.criteria.SearchCriteria;
 import com.payment.api.model.entity.PaymentResponseEntity;
 import com.payment.api.model.tuple.ApproveTuple;
 import com.payment.api.model.tuple.CancelTuple;
@@ -39,7 +39,6 @@ public class PaymentApiController {
 
 	@Autowired
 	public PaymentApiController(PaymentService paymentService, MessageService messageService) {
-		super();
 		this.paymentService = paymentService;
 		this.messageService = messageService;
 	}
@@ -54,9 +53,9 @@ public class PaymentApiController {
 	@ApiImplicitParams({
 		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "query", example = "20200513000000000000")
 	})
-	public ResponseEntity<PaymentResponseEntity> search(@RequestParam(name = "mid") final Optional<String> mid) {
+	public ResponseEntity<PaymentResponseEntity> search(@Valid @ModelAttribute final SearchCriteria searchCriteria) {
 		
-		SearchTuple result = paymentService.search(mid);
+		SearchTuple result = paymentService.search(searchCriteria);
 		
 		return new ResponseEntity<>(PaymentResponseEntity.builder()
 									.result(result)
@@ -81,7 +80,7 @@ public class PaymentApiController {
 		@ApiImplicitParam(name = "amount", value = "결제금액 (100원이상 , 10억이하)", required = true, dataType = "int", paramType = "query", example = ""),
 		@ApiImplicitParam(name = "vat", value = "부가가치세", required = false, dataType = "int", paramType = "query", example = "")
 	})
-	public ResponseEntity<PaymentResponseEntity> approve(@ModelAttribute final ApproveCriteria approveCriteria) {
+	public ResponseEntity<PaymentResponseEntity> approve(@Valid @ModelAttribute final ApproveCriteria approveCriteria) {
 		
 		ApproveTuple result = paymentService.approve(approveCriteria);
 		
@@ -105,7 +104,7 @@ public class PaymentApiController {
 		@ApiImplicitParam(name = "cancelAmount", value = "취소/부분취소 요청 금액", required = true, dataType = "int", paramType = "query", example = ""),
 		@ApiImplicitParam(name = "cancelVat", value = "취소 부가가치세", required = false, dataType = "int", paramType = "query", example = "")
 	})
-	public ResponseEntity<PaymentResponseEntity> cancel(@ModelAttribute final CancelCriteria cancelCriteria) {
+	public ResponseEntity<PaymentResponseEntity> cancel(@Valid @ModelAttribute final CancelCriteria cancelCriteria) {
 		
 		CancelTuple result = paymentService.cancel(cancelCriteria);
 		

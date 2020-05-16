@@ -7,9 +7,6 @@ import java.util.List;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
-
-import com.bol.secure.Encrypted;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,6 +35,8 @@ public class PaymentEntity {
 	private BigDecimal cancelAvailableVat;
 
 	private String encryptedCardInfo;
+	
+	private String fullText;
 	
 	private List<CancellationEntity> canceledList;
 	

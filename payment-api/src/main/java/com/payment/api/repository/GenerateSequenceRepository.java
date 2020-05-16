@@ -1,4 +1,4 @@
-package com.payment.api.service;
+package com.payment.api.repository;
 
 
 import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
@@ -12,17 +12,17 @@ import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Repository;
 
 import com.payment.api.model.entity.DatabaseSequenceEntity;
 
-@Service
-public class GenerateSequenceService {
+@Repository
+public class GenerateSequenceRepository {
 
 	private MongoOperations mongoOperations;
 	
 	@Autowired
-	public GenerateSequenceService(MongoOperations mongoOperations) {
+	public GenerateSequenceRepository(MongoOperations mongoOperations) {
 		this.mongoOperations = mongoOperations;
 	}
 	
