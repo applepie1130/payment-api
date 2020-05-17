@@ -14,11 +14,13 @@ spring:
         min-idle: 2
     port: 16377
     host: 127.0.0.1
-  
+    
+    
 logging:
   level:
     com:
-      payment: DEBUG
-  path: '/app/payment-api/logs/'
+      payment: 'DEBUG'
+  file:
+    path: '/app/payment-api/logs/' 
   
 payment-secretkey: 'kakaopaygogogo!!'
