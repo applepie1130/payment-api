@@ -4,6 +4,7 @@ package com.payment.api.model.criteria;
 import java.io.Serializable;
 import java.math.BigDecimal;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,15 +18,32 @@ public class CardFullTextCriteria implements Serializable {
 
 	private static final long serialVersionUID = -6109044511651047999L;
 	
-	private String mid; // 관리번호 
-	private String cardNumber; // 카드번호 
-	private String installMonth; // 할부개월수
-	private String mmyy; // 카드유효기간
-	private String cvc; // cvc 
-	private BigDecimal amount; // 거래금액 
-	private BigDecimal vat; // 부가가치세 
-	private String originalMid; // 원거래관리번호 
-	private String encryptedCardInfo; // 암호화된카드정보
+	@ApiModelProperty(notes = "관리번호", name = "mid", required = true)
+	private String mid;
+	
+	@ApiModelProperty(notes = "카드번호", name = "cardNumber", required = true)
+	private String cardNumber;
+	
+	@ApiModelProperty(notes = "할부개월수", name = "installMonth", required = true)
+	private String installMonth;
+	
+	@ApiModelProperty(notes = "카드유효기간", name = "mmyy", required = true)
+	private String mmyy;
+	
+	@ApiModelProperty(notes = "cvc", name = "cvc", required = true)
+	private String cvc;
+	
+	@ApiModelProperty(notes = "거래금액", name = "amount", required = true)
+	private BigDecimal amount;
+	
+	@ApiModelProperty(notes = "부가가치세", name = "vat", required = true)
+	private BigDecimal vat;
+	
+	@ApiModelProperty(notes = "원거래관리번호", name = "originalMid", required = false)
+	private String originalMid;
+	
+	@ApiModelProperty(notes = "암호화된카드정보", name = "encryptedCardInfo", required = true)
+	private String encryptedCardInfo;
 	
 	public String getInstallMonth() {
 		if ( this.installMonth.length() == 1 ) {

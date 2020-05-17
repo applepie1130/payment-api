@@ -21,6 +21,7 @@ public class DatabaseSequenceEntity implements Serializable {
 	
 	@Id
 	private String id;
+	
 	private Long seq;
 	
 }

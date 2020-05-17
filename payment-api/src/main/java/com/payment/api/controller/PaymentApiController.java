@@ -1,4 +1,4 @@
-package com.payment.api.contorller;
+package com.payment.api.controller;
 
 import javax.validation.Valid;
 
@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,7 +44,7 @@ public class PaymentApiController {
 		this.messageService = messageService;
 	}
 
-	@GetMapping(path="search")
+	@GetMapping(path="search/{mid}")
 	@ApiOperation(
 			httpMethod = "GET",
 			value = "TODO 리스트 조회 API",
@@ -51,9 +52,9 @@ public class PaymentApiController {
 			response = PaymentResponseEntity.class
 			)
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "query", example = "20200513000000000000")
+		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "path", example = "20200513000000000000")
 	})
-	public ResponseEntity<PaymentResponseEntity> search(@Valid @ModelAttribute final SearchCriteria searchCriteria) {
+	public ResponseEntity<PaymentResponseEntity> search(@Valid @PathVariable("mid") final SearchCriteria searchCriteria) {
 		
 		SearchTuple result = paymentService.search(searchCriteria);
 		

@@ -87,6 +87,7 @@ public class PaymentService {
 						.amount(paymentEntity.getAmount())
 						.vat(paymentEntity.getVat())
 						.cancelAvailableAmount(paymentEntity.getCancelAvailableAmount())
+						.cancelAvailableVat(paymentEntity.getCancelAvailableVat())
 						.approvedAt(paymentEntity.getApprovedAt())
 						.cardInfo(this.getCardTuple(paymentEntity.getEncryptedCardInfo())) // 복호화
 						.totalCanceledAmount(totalCanceledAmount)
@@ -196,12 +197,20 @@ public class PaymentService {
 			}
 		}
 		
-		// 취소가능 유효성 검사
+		/**
+		 * 취소가능 유효성 검사
+		 * 남은 취소가능금액보다 더 큰 금액을 취소 하려고 한 경우
+		 * 전체취소상태가 되는 경우 남은 부가세보다 작은 부가세를 요청한 경우
+		 * 남은 부가세보다 큰 금액의 부가세를 요청한 경우
+		 */
 		if (cancelAvailableAmount.compareTo(cancelAmount) < 0) {
-			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CANCEL_AMOUNT.getCode()));
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_OVER_CANCEL_AMOUNT.getCode()));
 		} 
+		if (cancelAvailableAmount.compareTo(cancelAmount) == 0 && cancelAvailableVat.compareTo(cancelVat) > 0) {
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_REMAIN_CANCEL_VAT.getCode()));
+		}
 		if (cancelAvailableVat.compareTo(cancelVat) < 0) {
-			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CANCEL_VAT.getCode()));
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_OVER_CANCEL_VAT.getCode()));
 		}
 		
 		BigDecimal cancelAvailableAmountForUpdate = cancelAvailableAmount.subtract(cancelAmount);
@@ -233,8 +242,8 @@ public class PaymentService {
 		// 취소데이터 생성
 		CancellationEntity cancellationEntity = CancellationEntity.builder()
 																.cid(cid)
-																.cancelAmount(cancelAvailableAmountForUpdate)
-																.cancelVat(cancelAvailableVatForUpdate)
+																.cancelAmount(cancelAmount)
+																.cancelVat(cancelVat)
 																.canceledAt(LocalDateTime.now())
 																.cancelFullText(cancelFullText)
 																.build();
@@ -248,6 +257,7 @@ public class PaymentService {
 		paymentEntity.setLastCanceledAt(cancellationEntity.getCanceledAt());
 		paymentEntity.setCancelAvailableAmount(cancelAvailableAmountForUpdate);
 		paymentEntity.setCancelAvailableVat(cancelAvailableVatForUpdate);
+		paymentEntity.setStatusType(statusType);
 
 		// DB update
 		PaymentEntity entity = paymentMongoRepository.save(paymentEntity);

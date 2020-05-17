@@ -44,6 +44,9 @@ public class SearchTuple implements Serializable {
 	@ApiModelProperty(notes = "남은 취소 가능금액", name = "cancelAvailableAmount", required = true)
 	private BigDecimal cancelAvailableAmount;
 	
+	@ApiModelProperty(notes = "남은 취소 가능 부가세", name = "cancelAvailableVat", required = true)
+	private BigDecimal cancelAvailableVat;
+	
 	@ApiModelProperty(notes = "결제상태", name = "statusType", required = true)
 	private StatusType statusType;
 	

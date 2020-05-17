@@ -1,3 +1,6 @@
+server:
+  port: 8081
+
 spring:
   messages:
     basename: 'message/messages'
@@ -17,6 +20,6 @@ logging:
     com:
       payment: DEBUG
   #path: '/app/payment-api/logs/'
-  path: '/Users/sungjun.kim/git/payment-api/logs/'
+  path: '/Users/sungjunkim/Github/payment-api/logs/'
   
 payment-secretkey: 'kakaopaygogogo!!'

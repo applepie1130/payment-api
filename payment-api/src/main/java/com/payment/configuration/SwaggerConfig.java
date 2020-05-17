@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.google.common.base.Predicate;
 
@@ -23,10 +25,12 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-public class SwaggerConfig {
+public class SwaggerConfig implements WebMvcConfigurer {
 	
 	@Bean
 	public Docket api() {
+		
+		
 		Docket docket = new Docket(DocumentationType.SWAGGER_2);
 		Predicate<RequestHandler> basePackage = RequestHandlerSelectors.basePackage("com.payment.api.controller");
 		
@@ -56,12 +60,17 @@ public class SwaggerConfig {
 		
 		String title = "Payment-API Documents";
 		String version = "0.0.1";
-		String license = "Sungjun All rights reserved";
+		String license = "kim sung-jun all rights reserved";
 		
 		return new ApiInfoBuilder()
 				.title(title)
 				.version(version)
 				.license(license)
 				.build();
+	}
+	
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+		registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
 	}
 }
