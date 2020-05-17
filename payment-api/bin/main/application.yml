@@ -19,7 +19,6 @@ logging:
   level:
     com:
       payment: DEBUG
-  #path: '/app/payment-api/logs/'
-  path: '/Users/sungjunkim/Github/payment-api/logs/'
+  path: '/app/payment-api/logs/'
   
 payment-secretkey: 'kakaopaygogogo!!'
