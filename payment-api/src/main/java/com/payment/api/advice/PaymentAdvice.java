@@ -1,5 +1,6 @@
 package com.payment.api.advice;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -9,19 +10,24 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.payment.api.model.entity.PaymentResponseEntity;
-import com.payment.api.service.MessageService;
+import com.payment.api.repository.redis.PaymentRedisRepository;
 
 @RestControllerAdvice
-public class Paymentdvice {
+public class PaymentAdvice {
 	
-	private final MessageService messageService;
+	private final PaymentRedisRepository paymentRedisRepository;
 	
-	public Paymentdvice(MessageService messageService) {
-		this.messageService = messageService;
+	public PaymentAdvice(PaymentRedisRepository paymentRedisRepository) {
+		this.paymentRedisRepository = paymentRedisRepository;
 	}
 	
 	@ExceptionHandler(PaymentApiException.class)
 	protected ResponseEntity<PaymentResponseEntity> handler(PaymentApiException e) {
+		if (StringUtils.isNoneBlank(e.getKey())) {
+			// redis key delete
+			paymentRedisRepository.delete(e.getKey());
+		}
+		
 		PaymentResponseEntity response = PaymentResponseEntity.builder()
 			.message(e.getMessage())
 			.status(e.getStatus())

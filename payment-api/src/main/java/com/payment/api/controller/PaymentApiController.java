@@ -1,4 +1,4 @@
-package com.payment.api.controller;
+	package com.payment.api.controller;
 
 import javax.validation.Valid;
 
@@ -52,7 +52,7 @@ public class PaymentApiController {
 			response = PaymentResponseEntity.class
 			)
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "path", example = "20200513000000000000")
+		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "path", example = "20200518000000000000")
 	})
 	public ResponseEntity<PaymentResponseEntity> search(@Valid @PathVariable("mid") final SearchCriteria searchCriteria) {
 		
@@ -101,7 +101,7 @@ public class PaymentApiController {
 			response = PaymentResponseEntity.class
 			)
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "query", example = "20200513000000000000"),
+		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "query", example = "20200518000000000000"),
 		@ApiImplicitParam(name = "cancelAmount", value = "취소/부분취소 요청 금액", required = true, dataType = "int", paramType = "query", example = ""),
 		@ApiImplicitParam(name = "cancelVat", value = "취소 부가가치세", required = false, dataType = "int", paramType = "query", example = "")
 	})

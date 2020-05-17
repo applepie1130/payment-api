@@ -204,13 +204,13 @@ public class PaymentService {
 		 * 남은 부가세보다 큰 금액의 부가세를 요청한 경우
 		 */
 		if (cancelAvailableAmount.compareTo(cancelAmount) < 0) {
-			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_OVER_CANCEL_AMOUNT.getCode()));
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_OVER_CANCEL_AMOUNT.getCode()), mid);
 		} 
 		if (cancelAvailableAmount.compareTo(cancelAmount) == 0 && cancelAvailableVat.compareTo(cancelVat) > 0) {
-			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_REMAIN_CANCEL_VAT.getCode()));
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_REMAIN_CANCEL_VAT.getCode()), mid);
 		}
 		if (cancelAvailableVat.compareTo(cancelVat) < 0) {
-			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_OVER_CANCEL_VAT.getCode()));
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_OVER_CANCEL_VAT.getCode()), mid);
 		}
 		
 		BigDecimal cancelAvailableAmountForUpdate = cancelAvailableAmount.subtract(cancelAmount);
@@ -291,7 +291,7 @@ public class PaymentService {
 
 	private PaymentEntity selectPaymentEntity(String mid) {
 		Optional<PaymentEntity> documents = paymentMongoRepository.findById(mid);
-		documents.filter(Objects::nonNull).orElseThrow(() -> new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_NODATA.getCode())));
+		documents.filter(Objects::nonNull).orElseThrow(() -> new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_NODATA.getCode()), mid));
 		
 		PaymentEntity paymentEntity = documents.get();
 		
@@ -301,7 +301,7 @@ public class PaymentService {
 	private String getEncryptCardInfo(final String cardNumber, final String mmyy, final String cvc) {
 		// validation
 		if (StringUtils.isAllBlank(cardNumber, mmyy, cvc)) {
-			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CARDINFO.getCode()));
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CARDINFO.getCode()), cardNumber);
 		}
 		
 		String planCardInfo = new StringBuffer().append(cardNumber)
