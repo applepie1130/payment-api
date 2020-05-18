@@ -1,16 +1,4 @@
-	package com.payment.api.controller;
-
-import javax.validation.Valid;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+package com.payment.api.controller;
 
 import com.payment.api.model.criteria.ApproveCriteria;
 import com.payment.api.model.criteria.CancelCriteria;
@@ -22,13 +10,21 @@ import com.payment.api.model.tuple.SearchTuple;
 import com.payment.api.model.type.MessageType;
 import com.payment.api.service.MessageService;
 import com.payment.api.service.PaymentService;
-
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
+/**
+ * The type Payment api controller.
+ */
 @Log4j2
 @RestController
 @RequestMapping(path = "/v1/payment/", produces = "application/json")
@@ -38,12 +34,24 @@ public class PaymentApiController {
 	private final PaymentService paymentService;
 	private final MessageService messageService;
 
+	/**
+	 * Instantiates a new Payment api controller.
+	 *
+	 * @param paymentService the payment service
+	 * @param messageService the message service
+	 */
 	@Autowired
 	public PaymentApiController(PaymentService paymentService, MessageService messageService) {
 		this.paymentService = paymentService;
 		this.messageService = messageService;
 	}
 
+	/**
+	 * Search response entity.
+	 *
+	 * @param searchCriteria the search criteria
+	 * @return the response entity
+	 */
 	@GetMapping(path="search/{mid}")
 	@ApiOperation(
 			httpMethod = "GET",
@@ -65,7 +73,13 @@ public class PaymentApiController {
 									.build()
 									, HttpStatus.OK);
 	}
-	
+
+	/**
+	 * Approve response entity.
+	 *
+	 * @param approveCriteria the approve criteria
+	 * @return the response entity
+	 */
 	@PostMapping(path="approve")
 	@ApiOperation(
 			httpMethod = "POST",
@@ -92,7 +106,13 @@ public class PaymentApiController {
 				.build()
 				, HttpStatus.OK);
 	}
-	
+
+	/**
+	 * Cancel response entity.
+	 *
+	 * @param cancelCriteria the cancel criteria
+	 * @return the response entity
+	 */
 	@PostMapping(path="cancel")
 	@ApiOperation(
 			httpMethod = "POST",

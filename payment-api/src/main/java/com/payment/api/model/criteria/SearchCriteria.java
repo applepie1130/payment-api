@@ -1,10 +1,5 @@
 package com.payment.api.model.criteria;
 
-import java.io.Serializable;
-
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.Size;
-
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -12,6 +7,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+
+/**
+ * The type Search criteria.
+ */
 @Data
 @Builder
 @NoArgsConstructor

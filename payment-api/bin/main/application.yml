@@ -27,5 +27,5 @@ logging:
       payment: 'DEBUG'
   file:
     path: '/app/payment-api/logs/' 
-  
+
 payment-secretkey: 'kakaopaygogogo!!'

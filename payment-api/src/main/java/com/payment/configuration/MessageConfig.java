@@ -17,25 +17,30 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import net.rakugakibox.util.YamlResourceBundle;
 
+/**
+ * The type Message config.
+ */
 @Configuration
 public class MessageConfig implements WebMvcConfigurer {
- 
-	/**
-	 * 세션에 지역설정. default는 KOREAN = 'ko'
-	 * @return
-	 */
-    @Bean 
+
+    /**
+     * 세션에 지역설정. default는 KOREAN = 'ko'
+     *
+     * @return locale resolver
+     */
+    @Bean
     public LocaleResolver localeResolver() {
         SessionLocaleResolver slr = new SessionLocaleResolver();
         slr.setDefaultLocale(Locale.KOREAN);
         return slr;
     }
- 
+
     /**
      * 지역설정을 변경하는 인터셉터. 요청시 파라미터에 lang 정보를 지정하면 언어가 변경됨.
-     * @return
+     *
+     * @return locale change interceptor
      */
-    @Bean 
+    @Bean
     public LocaleChangeInterceptor localeChangeInterceptor() {
         LocaleChangeInterceptor lci = new LocaleChangeInterceptor();
         lci.setParamName("lang");
@@ -49,14 +54,15 @@ public class MessageConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(localeChangeInterceptor());
     }
- 
+
     /**
      * yml 파일을 참조하는 MessageSource 선언
-     * @param basename
-     * @param encoding
-     * @return
+     *
+     * @param basename the basename
+     * @param encoding the encoding
+     * @return message source
      */
-    @Bean 
+    @Bean
     public MessageSource messageSource(
             @Value("${spring.messages.basename}") String basename,
             @Value("${spring.messages.encoding}") String encoding

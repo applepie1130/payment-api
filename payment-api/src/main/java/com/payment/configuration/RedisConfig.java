@@ -10,6 +10,9 @@ import org.springframework.context.annotation.Configuration;
 
 import redis.embedded.RedisServer;
 
+/**
+ * The type Redis config.
+ */
 @Configuration
 public class RedisConfig implements InitializingBean, DisposableBean {
 

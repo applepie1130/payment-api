@@ -10,6 +10,9 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 
 import com.payment.api.repository.redis.BaseRedisRepositoryPackageLocation;
 
+/**
+ * The type Redis repository config.
+ */
 @Configuration
 @EnableRedisRepositories(basePackageClasses = BaseRedisRepositoryPackageLocation.class)
 public class RedisRepositoryConfig {
@@ -20,11 +23,21 @@ public class RedisRepositoryConfig {
 	@Value("${spring.redis.port}")
 	private int redisPort;
 
+	/**
+	 * Redis connection factory lettuce connection factory.
+	 *
+	 * @return the lettuce connection factory
+	 */
 	@Bean
 	public LettuceConnectionFactory redisConnectionFactory() {
 		return new LettuceConnectionFactory(redisHost, redisPort);
 	}
 
+	/**
+	 * Redis template redis template.
+	 *
+	 * @return the redis template
+	 */
 	@Bean
 	public RedisTemplate<?, ?> redisTemplate() {
 		RedisTemplate<byte[], byte[]> redisTemplate = new RedisTemplate<>();

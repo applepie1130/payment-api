@@ -38,10 +38,13 @@ import com.payment.configuration.PaymentAppApplication;
 @SpringBootTest(classes = { PaymentAppApplication.class }, webEnvironment = WebEnvironment.DEFINED_PORT)
 public class PaymentAppApplicationTests1 {
 	
+	private final MockMvc mockMvc;
 	private static String MID;
 	
 	@Autowired
-	private MockMvc mockMvc;
+	public PaymentAppApplicationTests1(MockMvc mockMvc) {
+		this.mockMvc = mockMvc;
+	}
 
 	@BeforeAll
 	void setup() throws Exception {

@@ -5,8 +5,16 @@ import com.payment.api.model.type.PayType;
 import com.payment.api.model.type.fulltext.FullTextBodyType;
 import com.payment.api.model.type.fulltext.FullTextHeaderType;
 
+/**
+ * The type Card cancel full text.
+ */
 public class CardCancelFullText extends CardFullText {
 
+	/**
+	 * Instantiates a new Card cancel full text.
+	 *
+	 * @param cardFullTextCriteria the card full text criteria
+	 */
 	public CardCancelFullText(CardFullTextCriteria cardFullTextCriteria) {
 		super(cardFullTextCriteria);
 	}

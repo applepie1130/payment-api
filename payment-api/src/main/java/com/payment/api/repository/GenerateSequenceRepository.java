@@ -1,31 +1,44 @@
 package com.payment.api.repository;
 
 
-import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
-
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-
+import com.payment.api.model.entity.DatabaseSequenceEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Repository;
 
-import com.payment.api.model.entity.DatabaseSequenceEntity;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
+import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static org.springframework.data.mongodb.core.query.Query.query;
+
+/**
+ * The type Generate sequence repository.
+ */
 @Repository
 public class GenerateSequenceRepository {
 
 	private MongoOperations mongoOperations;
-	
+
+	/**
+	 * Instantiates a new Generate sequence repository.
+	 *
+	 * @param mongoOperations the mongo operations
+	 */
 	@Autowired
 	public GenerateSequenceRepository(MongoOperations mongoOperations) {
 		this.mongoOperations = mongoOperations;
 	}
-	
+
+	/**
+	 * Generate sequence string.
+	 *
+	 * @param seqName the seq name
+	 * @return the string
+	 */
 	public synchronized String generateSequence(String seqName) {
 		
 		DatabaseSequenceEntity sequence = mongoOperations.findAndModify(

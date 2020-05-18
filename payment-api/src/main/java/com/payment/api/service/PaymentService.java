@@ -1,19 +1,5 @@
 package com.payment.api.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-
 import com.payment.api.advice.PaymentApiException;
 import com.payment.api.component.EncryptorComponent;
 import com.payment.api.model.criteria.ApproveCriteria;
@@ -35,9 +21,24 @@ import com.payment.api.repository.mongo.PaymentMongoRepository;
 import com.payment.api.repository.redis.PaymentRedisRepository;
 import com.payment.api.util.CardApproveFullText;
 import com.payment.api.util.CardCancelFullText;
-
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+/**
+ * The type Payment service.
+ */
 @Log4j2
 @Service
 public class PaymentService {
@@ -51,6 +52,15 @@ public class PaymentService {
 	@Value("${payment-secretkey}")
 	private String secretKey;
 
+	/**
+	 * Instantiates a new Payment service.
+	 *
+	 * @param paymentRedisRepository     the payment redis repository
+	 * @param paymentMongoRepository     the payment mongo repository
+	 * @param generateSequenceRepository the generate sequence repository
+	 * @param messageService             the message service
+	 * @param encryptorComponent         the encryptor component
+	 */
 	@Autowired
 	public PaymentService(PaymentRedisRepository paymentRedisRepository,
 							PaymentMongoRepository paymentMongoRepository, 
@@ -63,8 +73,14 @@ public class PaymentService {
 		this.messageService = messageService;
 		this.encryptorComponent = encryptorComponent;
 	}
-	
-	
+
+
+	/**
+	 * Search search tuple.
+	 *
+	 * @param searchCriteria the search criteria
+	 * @return the search tuple
+	 */
 	public SearchTuple search(final SearchCriteria searchCriteria) {
 		PaymentEntity paymentEntity = this.selectPaymentEntity(searchCriteria.getMid());
 		List<CancellationEntity> canceledList = paymentEntity.getCanceledList();
@@ -95,7 +111,13 @@ public class PaymentService {
 						.statusType(paymentEntity.getStatusType())
 						.build();
 	}
-	
+
+	/**
+	 * Approve approve tuple.
+	 *
+	 * @param approveCriteria the approve criteria
+	 * @return the approve tuple
+	 */
 	public ApproveTuple approve(final ApproveCriteria approveCriteria) {
 		String cardNumber = approveCriteria.getCardNumber();
 		String mmyy = approveCriteria.getMmyy();
@@ -165,7 +187,13 @@ public class PaymentService {
 					.approvedAt(entity.getApprovedAt())
 					.build();
 	}
-	
+
+	/**
+	 * Cancel cancel tuple.
+	 *
+	 * @param cancelCriteria the cancel criteria
+	 * @return the cancel tuple
+	 */
 	public CancelTuple cancel(final CancelCriteria cancelCriteria) {
 		String mid = cancelCriteria.getMid();
 		BigDecimal cancelAmount = cancelCriteria.getCancelAmount();
@@ -289,21 +317,35 @@ public class PaymentService {
 					.build();
 	}
 
+	/**
+	 * 관리자번호로 payment document 조회
+	 *
+	 * @param mid
+	 * @return
+	 */
 	private PaymentEntity selectPaymentEntity(String mid) {
 		Optional<PaymentEntity> documents = paymentMongoRepository.findById(mid);
 		documents.filter(Objects::nonNull).orElseThrow(() -> new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_NODATA.getCode()), mid));
-		
+
 		PaymentEntity paymentEntity = documents.get();
-		
+
 		return paymentEntity;
 	}
-	
+
+	/**
+	 * 카드 기본정보로 AES256 암호화 구문 생성 및 조회
+	 *
+	 * @param cardNumber
+	 * @param mmyy
+	 * @param cvc
+	 * @return
+	 */
 	private String getEncryptCardInfo(final String cardNumber, final String mmyy, final String cvc) {
 		// validation
 		if (StringUtils.isAllBlank(cardNumber, mmyy, cvc)) {
 			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CARDINFO.getCode()), cardNumber);
 		}
-		
+
 		String planCardInfo = new StringBuffer().append(cardNumber)
 				.append(DelimiterType.CARD.getDelimiter())
 				.append(mmyy)
@@ -314,25 +356,31 @@ public class PaymentService {
 		// 암호화
 		return encryptorComponent.encrypt(planCardInfo, secretKey);
 	}
-	
+
+	/**
+	 * AES256 카드 암호화 정보로 CardTuple 객체 생성 및 조회
+	 *
+	 * @param encryptedCardInfo
+	 * @return
+	 */
 	private CardTuple getCardTuple(String encryptedCardInfo) {
 		// validation
 		if (StringUtils.isBlank(encryptedCardInfo)) {
 			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CARDINFO.getCode()));
 		}
-		
+
 		// 복호화
 		String[] splitedCardInfo = StringUtils.split(encryptorComponent.decrypt(encryptedCardInfo, secretKey), DelimiterType.CARD.getDelimiter());
-		
+
 		if (CollectionUtils.sizeIsEmpty(splitedCardInfo)) {
 			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_CARDINFO.getCode()));
 		}
-		
+
 		return CardTuple.builder()
 						.cardNumber(splitedCardInfo[0])
 						.mmyy(splitedCardInfo[1])
 						.cvc(splitedCardInfo[2])
 						.build();
 	}
-	
+
 }

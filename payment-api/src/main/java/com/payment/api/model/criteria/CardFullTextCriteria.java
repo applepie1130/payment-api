@@ -10,6 +10,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * The type Card full text criteria.
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -44,7 +47,12 @@ public class CardFullTextCriteria implements Serializable {
 	
 	@ApiModelProperty(notes = "암호화된카드정보", name = "encryptedCardInfo", required = true)
 	private String encryptedCardInfo;
-	
+
+	/**
+	 * Gets install month.
+	 *
+	 * @return the install month
+	 */
 	public String getInstallMonth() {
 		if ( this.installMonth.length() == 1 ) {
 			return new StringBuffer()

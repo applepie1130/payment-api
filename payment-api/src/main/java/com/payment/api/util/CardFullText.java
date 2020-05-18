@@ -6,12 +6,20 @@ import com.payment.api.model.type.fulltext.FullTextHeaderType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+/**
+ * The type Card full text.
+ */
 @Data
 @AllArgsConstructor
 public abstract class CardFullText {
 	
 	private CardFullTextCriteria cardFullTextCriteria;
-	
+
+	/**
+	 * Create full text string.
+	 *
+	 * @return the string
+	 */
 	public final String createFullText() {
 
 		String header = createHeader();
@@ -28,9 +36,19 @@ public abstract class CardFullText {
 					.toString();
 		
 	}
-	
+
+	/**
+	 * Create header string.
+	 *
+	 * @return the string
+	 */
 	protected abstract String createHeader();
-		
+
+	/**
+	 * Create body string.
+	 *
+	 * @return the string
+	 */
 	protected abstract String createBody();
 	
 }

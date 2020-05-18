@@ -5,8 +5,16 @@ import com.payment.api.model.type.PayType;
 import com.payment.api.model.type.fulltext.FullTextBodyType;
 import com.payment.api.model.type.fulltext.FullTextHeaderType;
 
+/**
+ * The type Card approve full text.
+ */
 public class CardApproveFullText extends CardFullText {
 
+	/**
+	 * Instantiates a new Card approve full text.
+	 *
+	 * @param cardFullTextCriteria the card full text criteria
+	 */
 	public CardApproveFullText(CardFullTextCriteria cardFullTextCriteria) {
 		super(cardFullTextCriteria);
 	}
