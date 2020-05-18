@@ -52,15 +52,15 @@ public class PaymentApiController {
 	 * @param searchCriteria the search criteria
 	 * @return the response entity
 	 */
-	@GetMapping(path="search/{mid}")
+	@GetMapping(path="{mid}")
 	@ApiOperation(
 			httpMethod = "GET",
-			value = "TODO 리스트 조회 API",
-			notes = "키워드로 TODO 일정 리스트 정보를 검색한다.",
+			value = "결제내역 조회 API",
+			notes = "관리자번호(mid)로 결제정보를 검색한다.",
 			response = PaymentResponseEntity.class
 			)
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "path", example = "20200518000000000000")
+		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "path", example = "20200518000000000001")
 	})
 	public ResponseEntity<PaymentResponseEntity> search(@Valid @PathVariable("mid") final SearchCriteria searchCriteria) {
 		
@@ -121,7 +121,7 @@ public class PaymentApiController {
 			response = PaymentResponseEntity.class
 			)
 	@ApiImplicitParams({
-		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "query", example = "20200518000000000000"),
+		@ApiImplicitParam(name = "mid", value = "관리번호", required = true, dataType = "string", paramType = "query", example = "20200518000000000001"),
 		@ApiImplicitParam(name = "cancelAmount", value = "취소/부분취소 요청 금액", required = true, dataType = "int", paramType = "query", example = ""),
 		@ApiImplicitParam(name = "cancelVat", value = "취소 부가가치세", required = false, dataType = "int", paramType = "query", example = "")
 	})

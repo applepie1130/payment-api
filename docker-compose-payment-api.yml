@@ -1,0 +1,15 @@
+version: "3"
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx-conf:/etc/nginx/conf.d
+  payment-api:
+    image: ${APP_NAME}:${VERSION}
+    build: .
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:      
+      - ./logs:/app/payment-api/logs:ro

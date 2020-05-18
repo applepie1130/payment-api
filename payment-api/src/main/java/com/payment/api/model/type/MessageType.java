@@ -18,6 +18,7 @@ public enum MessageType {
 	PAYMENT_ERROR_SEARCH("payment.error.search"),
 	PAYMENT_ERROR_APPROVE("payment.error.approve"),
 	PAYMENT_ERROR_CANCEL("payment.error.cancel"),
+	PAYMENT_ERROR_ALEADY_CANCELED("payment.error.aleadyCanceled"),
 	PAYMENT_ERROR_OVER_CANCEL_AMOUNT("payment.error.overCancelAmount"),
 	PAYMENT_ERROR_OVER_CANCEL_VAT("payment.error.overCancelVat"),
 	PAYMENT_ERROR_REMAIN_CANCEL_VAT("payment.error.remainCancelVat"),

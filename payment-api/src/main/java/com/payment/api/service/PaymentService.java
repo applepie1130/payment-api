@@ -1,5 +1,19 @@
 package com.payment.api.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
 import com.payment.api.advice.PaymentApiException;
 import com.payment.api.component.EncryptorComponent;
 import com.payment.api.model.criteria.ApproveCriteria;
@@ -21,20 +35,8 @@ import com.payment.api.repository.mongo.PaymentMongoRepository;
 import com.payment.api.repository.redis.PaymentRedisRepository;
 import com.payment.api.util.CardApproveFullText;
 import com.payment.api.util.CardCancelFullText;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import lombok.extern.log4j.Log4j2;
 
 /**
  * The type Payment service.
@@ -96,7 +98,7 @@ public class PaymentService {
 			totalCanceledVat = canceledList.stream()
 										.map(s->s.getCancelVat())
 										.reduce(BigDecimal.ZERO, BigDecimal::add);
-		}			 
+		}
 		
 		return SearchTuple.builder()
 						.mid(paymentEntity.getMid())
@@ -105,7 +107,7 @@ public class PaymentService {
 						.cancelAvailableAmount(paymentEntity.getCancelAvailableAmount())
 						.cancelAvailableVat(paymentEntity.getCancelAvailableVat())
 						.approvedAt(paymentEntity.getApprovedAt())
-						.cardInfo(this.getCardTuple(paymentEntity.getEncryptedCardInfo())) // 복호화
+						.card(this.getCardTuple(paymentEntity.getEncryptedCardInfo()).convertResponseTuple()) // 복호화
 						.totalCanceledAmount(totalCanceledAmount)
 						.totalCanceledVat(totalCanceledVat)
 						.statusType(paymentEntity.getStatusType())
@@ -227,10 +229,14 @@ public class PaymentService {
 		
 		/**
 		 * 취소가능 유효성 검사
+		 * 전체취소 완료건의 경우 취소불가
 		 * 남은 취소가능금액보다 더 큰 금액을 취소 하려고 한 경우
 		 * 전체취소상태가 되는 경우 남은 부가세보다 작은 부가세를 요청한 경우
 		 * 남은 부가세보다 큰 금액의 부가세를 요청한 경우
 		 */
+		if (paymentEntity.getStatusType() == StatusType.CANCEL_PAYMENT) {
+			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_ALEADY_CANCELED.getCode()), mid);
+		}
 		if (cancelAvailableAmount.compareTo(cancelAmount) < 0) {
 			throw new PaymentApiException(HttpStatus.BAD_REQUEST, messageService.getMessage(MessageType.PAYMENT_ERROR_OVER_CANCEL_AMOUNT.getCode()), mid);
 		} 

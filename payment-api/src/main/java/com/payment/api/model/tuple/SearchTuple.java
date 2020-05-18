@@ -23,8 +23,8 @@ public class SearchTuple implements Serializable {
 
 	private static final long serialVersionUID = -6227901814655234223L;
 	
-	@ApiModelProperty(notes = "카드정보", name = "cardInfo", required = true)
-	private CardTuple cardInfo;
+	@ApiModelProperty(notes = "카드정보", name = "card", required = true)
+	private CardResponseTuple card;
 	
 	@ApiModelProperty(notes = "mid", name = "mid", required = true)
 	private String mid;

@@ -8,6 +8,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -24,7 +27,7 @@ public class ApproveCriteria implements Serializable {
 	private static final long serialVersionUID = -636191608556058886L;
 
 	@NotEmpty(message = "카드번호(cardNumber)는 필수 항목 입니다.")
-	@Pattern(regexp = "\\d{10}(\\d{6})?", message="카드번호는(cardNumber)는 10~16자리 숫자형식 입니다.")	
+	@Pattern(regexp = "\\d{10,16}", message="카드번호는(cardNumber)는 10~16자리 숫자형식 입니다.")	
 	@ApiModelProperty(notes = "카드번호", name = "cardNumber", required = true)
 	private String cardNumber;
 	
@@ -53,5 +56,18 @@ public class ApproveCriteria implements Serializable {
 	@DecimalMax(value = "110000000", message="부가가치세(vat)을 확인해주세요.")
 	@ApiModelProperty(notes = "부가가치세(vat)", name = "vat", required = false)
 	private BigDecimal vat;
+	
+	/**
+	 * Gets install month.
+	 *
+	 * @return the install month
+	 */
+	public String getInstallMonth() {
+		if ( StringUtils.equals(this.installMonth, "0") ) {
+			return "00";
+		}
+		
+		return this.installMonth;
+	}
 	
 }
