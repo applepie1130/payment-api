@@ -12,4 +12,4 @@ services:
     ports:
       - "${PORT}:${PORT}"
     volumes:      
-      - ./logs:/app/payment-api/logs:ro
+      - ./logs:/app/payment-api/logs

@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum FillType {
 	
-	SPACE("_"),
+	SPACE(" "),
 	ZERO("0")
 	;
 

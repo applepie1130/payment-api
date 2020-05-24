@@ -6,8 +6,6 @@ set +a
 
 CMD=$1
 
-#. .env
-
 start() {
     rm -rf ./payment-api/build/libs/*
     cd payment-api
